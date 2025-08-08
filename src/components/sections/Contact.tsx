@@ -31,9 +31,6 @@ const Contact = () => {
     
     console.log('🚀 Form submission started with data:', formData);
     
-    // Show alert to user for debugging
-    alert('Form submission started! Check the browser console for details.');
-    
     try {
       // Basic form validation
       if (!formData.name.trim()) {
@@ -74,7 +71,6 @@ const Contact = () => {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
         console.log('🎉 Form submitted successfully');
-        alert('SUCCESS! Form submitted successfully. Check your Formspree dashboard.');
         
         // Auto-hide success message after 5 seconds
         setTimeout(() => {
@@ -89,7 +85,6 @@ const Contact = () => {
       const errorMessage = error instanceof Error ? error.message : 'Failed to send message. Please try again.';
       setErrorMessage(errorMessage);
       console.error('❌ Error details:', errorMessage);
-      alert('ERROR: ' + errorMessage + '. Check the browser console for details.');
       
       // Auto-hide error message after 10 seconds
       setTimeout(() => {

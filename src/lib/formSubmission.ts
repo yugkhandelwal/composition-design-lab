@@ -178,7 +178,6 @@ export const submitContactForm = async (data: ContactFormData): Promise<FormSubm
   const FORMSPREE_URL = 'https://formspree.io/f/mvgqvyve';
   
   console.log('📤 submitContactForm called with data:', data);
-  alert('submitContactForm called! Check console for details.');
   
   try {
     // Use FormData approach for better compatibility
