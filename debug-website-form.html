@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Website Form Debug Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background: #007cba;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 4px;
+        }
+        .success {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .debug {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            color: #495057;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Website Form Debug Test</h1>
+    <p>This test replicates exactly what your website form does. Let's see what happens!</p>
+    
+    <div id="debugOutput" class="status debug">Debug output will appear here...</div>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject">
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Message *</label>
+            <textarea id="message" name="message" rows="4" required></textarea>
+        </div>
+        
+        <button type="submit" id="submitBtn">Send Test Message</button>
+    </form>
+    
+    <div id="statusOutput"></div>
+
+    <script>
+        // Exact same function as your website
+        async function submitContactForm(data) {
+            const FORMSPREE_URL = 'https://formspree.io/f/mvgqvyve';
+            
+            console.log('🚀 Submitting form data:', data);
+            logDebug('🚀 Starting form submission...');
+            logDebug('📝 Form data: ' + JSON.stringify(data, null, 2));
+            
+            try {
+                // Use FormData approach for better compatibility
+                const formData = new FormData();
+                formData.append('name', data.name);
+                formData.append('email', data.email);
+                formData.append('subject', data.subject);
+                formData.append('message', data.message);
+                formData.append('_replyto', data.email);
+
+                logDebug('📤 Making fetch request to: ' + FORMSPREE_URL);
+
+                const response = await fetch(FORMSPREE_URL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                logDebug('📊 Response status: ' + response.status);
+                logDebug('📊 Response ok: ' + response.ok);
+
+                // Handle both success and redirect responses
+                if (response.ok) {
+                    try {
+                        const responseData = await response.json();
+                        logDebug('📋 Response JSON: ' + JSON.stringify(responseData, null, 2));
+                    } catch (e) {
+                        logDebug('ℹ️ Response was not JSON (this is normal)');
+                    }
+                    
+                    return { 
+                        success: true, 
+                        message: 'Message sent successfully! We\'ll get back to you soon.' 
+                    };
+                } else if (response.status === 302 || response.status === 422) {
+                    logDebug('✅ Got redirect/422 status - treating as success');
+                    return { 
+                        success: true, 
+                        message: 'Message sent successfully! We\'ll get back to you soon.' 
+                    };
+                } else {
+                    const errorText = await response.text();
+                    logDebug('❌ Error response: ' + errorText);
+                    
+                    return {
+                        success: false,
+                        message: `Failed to send message. Server returned ${response.status}. Please try again.`
+                    };
+                }
+            } catch (error) {
+                logDebug('💥 Catch block error: ' + error.message);
+                console.error('Form submission error:', error);
+                
+                return {
+                    success: false,
+                    message: `Network error: ${error.message}. Please check your connection and try again.`
+                };
+            }
+        }
+
+        function logDebug(message) {
+            const debugOutput = document.getElementById('debugOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            debugOutput.textContent += `[${timestamp}] ${message}\n`;
+            console.log(message);
+        }
+
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const statusOutput = document.getElementById('statusOutput');
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                subject: formData.get('subject') || '',
+                message: formData.get('message')
+            };
+
+            // Basic validation (same as website)
+            if (!data.name.trim()) {
+                statusOutput.innerHTML = '<div class="status error">Please enter your name</div>';
+                return;
+            }
+            
+            if (!data.email.trim()) {
+                statusOutput.innerHTML = '<div class="status error">Please enter your email address</div>';
+                return;
+            }
+            
+            if (!data.message.trim()) {
+                statusOutput.innerHTML = '<div class="status error">Please enter your message</div>';
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(data.email)) {
+                statusOutput.innerHTML = '<div class="status error">Please enter a valid email address</div>';
+                return;
+            }
+
+            // Submit form
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            statusOutput.innerHTML = '';
+
+            try {
+                const response = await submitContactForm(data);
+                
+                if (response.success) {
+                    statusOutput.innerHTML = '<div class="status success">✅ ' + response.message + '</div>';
+                    logDebug('🎉 SUCCESS! Form submitted successfully');
+                    this.reset(); // Clear form
+                } else {
+                    statusOutput.innerHTML = '<div class="status error">❌ ' + response.message + '</div>';
+                    logDebug('❌ FAILED: ' + response.message);
+                }
+            } catch (error) {
+                statusOutput.innerHTML = '<div class="status error">❌ Unexpected error: ' + error.message + '</div>';
+                logDebug('💥 UNEXPECTED ERROR: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Test Message';
+            }
+        });
+
+        // Pre-fill form with test data
+        document.getElementById('name').value = 'Test User';
+        document.getElementById('email').value = 'test@example.com';
+        document.getElementById('subject').value = 'Debug Test from Form';
+        document.getElementById('message').value = 'This is a test message to debug the contact form on the website.';
+
+        logDebug('🔄 Debug page loaded and ready for testing');
+    </script>
+</body>
+</html>

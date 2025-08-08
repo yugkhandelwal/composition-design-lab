@@ -29,7 +29,10 @@ const Contact = () => {
     setSubmitStatus('idle');
     setErrorMessage('');
     
-    console.log('Form submission started with data:', formData);
+    console.log('🚀 Form submission started with data:', formData);
+    
+    // Show alert to user for debugging
+    alert('Form submission started! Check the browser console for details.');
     
     try {
       // Basic form validation
@@ -51,23 +54,27 @@ const Contact = () => {
         throw new Error('Please enter a valid email address');
       }
 
+      console.log('✅ Form validation passed');
+
       // Track form submission attempt
       try {
         trackContactForm('submit');
+        console.log('✅ Analytics tracked');
       } catch (trackingError) {
-        console.warn('Analytics tracking failed:', trackingError);
+        console.warn('⚠️ Analytics tracking failed:', trackingError);
         // Don't fail the form submission for tracking errors
       }
 
       // Submit form using the form submission service
-      console.log('Calling submitContactForm...');
+      console.log('📤 Calling submitContactForm...');
       const response = await submitContactForm(formData);
-      console.log('Form submission response:', response);
+      console.log('📋 Form submission response:', response);
       
       if (response.success) {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
-        console.log('Form submitted successfully');
+        console.log('🎉 Form submitted successfully');
+        alert('SUCCESS! Form submitted successfully. Check your Formspree dashboard.');
         
         // Auto-hide success message after 5 seconds
         setTimeout(() => {
@@ -77,11 +84,12 @@ const Contact = () => {
         throw new Error(response.message || 'Failed to send message');
       }
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('💥 Form submission error:', error);
       setSubmitStatus('error');
       const errorMessage = error instanceof Error ? error.message : 'Failed to send message. Please try again.';
       setErrorMessage(errorMessage);
-      console.error('Error details:', errorMessage);
+      console.error('❌ Error details:', errorMessage);
+      alert('ERROR: ' + errorMessage + '. Check the browser console for details.');
       
       // Auto-hide error message after 10 seconds
       setTimeout(() => {

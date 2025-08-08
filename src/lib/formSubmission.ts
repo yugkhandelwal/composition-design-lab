@@ -177,7 +177,8 @@ export const submitDemo = async (data: ContactFormData): Promise<FormSubmissionR
 export const submitContactForm = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   const FORMSPREE_URL = 'https://formspree.io/f/mvgqvyve';
   
-  console.log('Submitting form data:', data);
+  console.log('📤 submitContactForm called with data:', data);
+  alert('submitContactForm called! Check console for details.');
   
   try {
     // Use FormData approach for better compatibility
@@ -188,6 +189,9 @@ export const submitContactForm = async (data: ContactFormData): Promise<FormSubm
     formData.append('message', data.message);
     formData.append('_replyto', data.email); // Formspree reply-to field
 
+    console.log('📋 FormData created');
+    console.log('🌐 Making fetch request to:', FORMSPREE_URL);
+
     const response = await fetch(FORMSPREE_URL, {
       method: 'POST',
       body: formData,
@@ -196,13 +200,18 @@ export const submitContactForm = async (data: ContactFormData): Promise<FormSubm
       }
     });
 
-    console.log('Response status:', response.status);
-    console.log('Response headers:', response.headers);
+    console.log('📊 Response received - status:', response.status);
+    console.log('📊 Response ok:', response.ok);
+    console.log('📊 Response headers:', Array.from(response.headers.entries()));
 
     // Handle both success and redirect responses
     if (response.ok) {
-      const responseData = await response.json().catch(() => null);
-      console.log('Response data:', responseData);
+      try {
+        const responseData = await response.json();
+        console.log('📋 Response JSON data:', responseData);
+      } catch (jsonError) {
+        console.log('ℹ️ Response was not JSON (this is normal for some services)');
+      }
       
       return { 
         success: true, 
@@ -210,13 +219,14 @@ export const submitContactForm = async (data: ContactFormData): Promise<FormSubm
       };
     } else if (response.status === 302 || response.status === 422) {
       // Formspree sometimes returns 302 redirect or 422 for success
+      console.log('✅ Got redirect/422 status - treating as success');
       return { 
         success: true, 
         message: 'Message sent successfully! We\'ll get back to you soon.' 
       };
     } else {
       const errorText = await response.text().catch(() => 'Unknown error');
-      console.error('Formspree error:', response.status, errorText);
+      console.error('❌ Formspree error - status:', response.status, 'text:', errorText);
       
       return {
         success: false,
@@ -224,7 +234,7 @@ export const submitContactForm = async (data: ContactFormData): Promise<FormSubm
       };
     }
   } catch (error) {
-    console.error('Form submission error:', error);
+    console.error('💥 Form submission catch block error:', error);
     
     return {
       success: false,
