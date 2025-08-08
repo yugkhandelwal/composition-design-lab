@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "name": "composition-design-lab",
   "builds": [
     {
       "src": "package.json",
@@ -55,7 +54,7 @@
       ]
     },
     {
-      "source": "/(.*\\.(js|css|jpg|jpeg|png|webp|svg|woff|woff2))",
+      "source": "/static/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
