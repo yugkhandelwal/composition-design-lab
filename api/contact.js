@@ -58,12 +58,21 @@ export default async function handler(req, res) {
 
     messages.push(newMessage);
 
-    // Log for Vercel
-    console.log('New contact form submission:', {
+    // Log for Vercel (enhanced logging)
+    const logData = {
+      timestamp: newMessage.timestamp,
       email,
       name,
-      timestamp: newMessage.timestamp
-    });
+      subject: subject || 'No subject',
+      messageLength: message.length,
+      ip: req.headers['x-forwarded-for'] || 'unknown',
+      userAgent: req.headers['user-agent'] || 'unknown',
+      referer: req.headers.referer || 'direct'
+    };
+    
+    console.log('=== NEW CONTACT FORM SUBMISSION ===');
+    console.log(JSON.stringify(logData, null, 2));
+    console.log('====================================');
 
     res.status(200).json({
       success: true,
