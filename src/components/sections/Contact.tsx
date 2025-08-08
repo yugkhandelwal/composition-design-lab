@@ -1,10 +1,16 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Mail, MapPin, Phone, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { trackPhoneCall, trackEmailClick, trackContactForm } from '../../lib/analytics';
 import { submitContactForm, type ContactFormData } from '../../lib/formSubmission';
 
 const Contact = () => {
+  // Add immediate console log when component loads
+  useEffect(() => {
+    console.log('🔥 CONTACT COMPONENT LOADED - DEBUG VERSION 2.0 - If you see this, Vercel is updating!');
+    console.log('📍 Current timestamp:', new Date().toISOString());
+  }, []);
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -168,7 +174,7 @@ const Contact = () => {
           {/* Contact Form */}
           <div className="lg:col-span-2">
             <form className="bg-white p-8 shadow-sm" onSubmit={handleSubmit}>
-              <h3 className="text-2xl mb-6">Send us a message</h3>
+              <h3 className="text-2xl mb-6">Send us a message (DEBUG VERSION - v2.0)</h3>
               
               {/* Status Messages */}
               {submitStatus === 'success' && (
