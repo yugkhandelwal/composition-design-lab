@@ -96,7 +96,7 @@ export const submitToEmailJS = async (data: ContactFormData): Promise<FormSubmis
 export const submitToCustomAPI = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   const API_URL = process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3001/api/contact'
-    : '/api/contact'; // Use Vercel serverless function in production
+    : '/api/contact'; // Vercel serverless function
   
   try {
     const response = await fetch(API_URL, {
@@ -140,11 +140,11 @@ export const submitDemo = async (data: ContactFormData): Promise<FormSubmissionR
 export const submitContactForm = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   // Choose your preferred submission method:
   
-  // For Formspree (recommended - easiest to see submissions):
-  return submitToFormspree(data);
+  // For local development backend (to see requests in real-time):
+  return submitToCustomAPI(data);
   
-  // For custom backend (using our Node.js API):
-  // return submitToCustomAPI(data);
+  // For Formspree (recommended for production):
+  // return submitToFormspree(data);
   
   // For development/demo:
   // return submitDemo(data);
