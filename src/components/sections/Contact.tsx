@@ -1,9 +1,53 @@
 
-import React from 'react';
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, MapPin, Phone, Send, CheckCircle, AlertCircle } from 'lucide-react';
 import { trackPhoneCall, trackEmailClick, trackContactForm } from '../../lib/analytics';
+import { submitContactForm, type ContactFormData } from '../../lib/formSubmission';
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setSubmitStatus('idle');
+    
+    try {
+      // Track form submission attempt
+      trackContactForm(formData.subject || 'General Inquiry');
+
+      // Submit form using the form submission service
+      const response = await submitContactForm(formData);
+      
+      if (response.success) {
+        setSubmitStatus('success');
+        setFormData({ name: '', email: '', subject: '', message: '' });
+      } else {
+        throw new Error(response.message || 'Failed to send message');
+      }
+    } catch (error) {
+      setSubmitStatus('error');
+      setErrorMessage(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
   return (
     <section id="contact" className="section">
       <div className="container-custom">
@@ -76,8 +120,23 @@ const Contact = () => {
           
           {/* Contact Form */}
           <div className="lg:col-span-2">
-            <form className="bg-white p-8 shadow-sm">
+            <form className="bg-white p-8 shadow-sm" onSubmit={handleSubmit}>
               <h3 className="text-2xl mb-6">Send us a message</h3>
+              
+              {/* Status Messages */}
+              {submitStatus === 'success' && (
+                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-md flex items-center">
+                  <CheckCircle size={20} className="text-green-600 mr-3" />
+                  <p className="text-green-800">Thank you! Your message has been sent successfully. We'll get back to you soon.</p>
+                </div>
+              )}
+              
+              {submitStatus === 'error' && (
+                <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-md flex items-center">
+                  <AlertCircle size={20} className="text-red-600 mr-3" />
+                  <p className="text-red-800">{errorMessage}</p>
+                </div>
+              )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
@@ -87,8 +146,12 @@ const Contact = () => {
                   <input
                     type="text"
                     id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-arch-primary focus:border-transparent"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
                 
@@ -99,8 +162,12 @@ const Contact = () => {
                   <input
                     type="email"
                     id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
                     className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-arch-primary focus:border-transparent"
                     required
+                    disabled={isSubmitting}
                   />
                 </div>
               </div>
@@ -112,7 +179,11 @@ const Contact = () => {
                 <input
                   type="text"
                   id="subject"
+                  name="subject"
+                  value={formData.subject}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-arch-primary focus:border-transparent"
+                  disabled={isSubmitting}
                 />
               </div>
               
@@ -122,17 +193,23 @@ const Contact = () => {
                 </label>
                 <textarea
                   id="message"
+                  name="message"
                   rows={6}
+                  value={formData.message}
+                  onChange={handleInputChange}
                   className="w-full px-4 py-2 border border-gray-300 focus:outline-none focus:ring-2 focus:ring-arch-primary focus:border-transparent resize-none"
                   required
+                  disabled={isSubmitting}
                 ></textarea>
               </div>
               
               <button
                 type="submit"
-                className="btn-primary flex items-center"
+                className={`btn-primary flex items-center ${isSubmitting ? 'opacity-75 cursor-not-allowed' : ''}`}
+                disabled={isSubmitting}
               >
-                Send Message <Send size={18} className="ml-2" />
+                {isSubmitting ? 'Sending...' : 'Send Message'}
+                <Send size={18} className="ml-2" />
               </button>
             </form>
           </div>
