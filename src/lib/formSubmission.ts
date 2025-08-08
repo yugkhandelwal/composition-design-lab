@@ -94,8 +94,12 @@ export const submitToEmailJS = async (data: ContactFormData): Promise<FormSubmis
 
 // Option 4: Custom Backend API
 export const submitToCustomAPI = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
+  const API_URL = process.env.NODE_ENV === 'development' 
+    ? 'http://localhost:3001/api/contact'
+    : 'https://your-backend-domain.com/api/contact'; // Replace with your production backend URL
+  
   try {
-    const response = await fetch('/api/contact', {
+    const response = await fetch(API_URL, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -105,9 +109,14 @@ export const submitToCustomAPI = async (data: ContactFormData): Promise<FormSubm
 
     const result = await response.json();
 
-    if (response.ok) {
+    if (response.ok && result.success) {
       return { success: true, message: result.message || 'Message sent successfully!' };
     } else {
+      // Handle validation errors specifically
+      if (result.errors && Array.isArray(result.errors)) {
+        const errorMessages = result.errors.map((err: any) => `${err.path}: ${err.msg}`).join(', ');
+        throw new Error(`Validation failed: ${errorMessages}`);
+      }
       throw new Error(result.message || 'Failed to send message');
     }
   } catch (error) {
@@ -131,8 +140,11 @@ export const submitDemo = async (data: ContactFormData): Promise<FormSubmissionR
 export const submitContactForm = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   // Choose your preferred submission method:
   
+  // For custom backend (using our Node.js API):
+  return submitToCustomAPI(data);
+  
   // For development/demo:
-  return submitDemo(data);
+  // return submitDemo(data);
   
   // For Formspree (recommended):
   // return submitToFormspree(data);
@@ -142,7 +154,4 @@ export const submitContactForm = async (data: ContactFormData): Promise<FormSubm
   
   // For EmailJS:
   // return submitToEmailJS(data);
-  
-  // For custom backend:
-  // return submitToCustomAPI(data);
 };
