@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Form Test</title>
+</head>
+<body>
+    <h1>Contact Form Test</h1>
+    <div id="status"></div>
+    <form id="testForm">
+        <div>
+            <label>Name: <input type="text" name="name" value="Test User" required></label>
+        </div>
+        <div>
+            <label>Email: <input type="email" name="email" value="test@example.com" required></label>
+        </div>
+        <div>
+            <label>Subject: <input type="text" name="subject" value="Test Subject"></label>
+        </div>
+        <div>
+            <label>Message: <textarea name="message" required>This is a test message from the HTML test form.</textarea></label>
+        </div>
+        <button type="submit">Send Test Message</button>
+    </form>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(this);
+            const data = Object.fromEntries(formData);
+            
+            const statusDiv = document.getElementById('status');
+            statusDiv.innerHTML = 'Sending...';
+            
+            try {
+                const response = await fetch('https://formspree.io/f/mvgqvyve', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                if (response.ok) {
+                    statusDiv.innerHTML = '<p style="color: green;">✅ Message sent successfully!</p>';
+                } else {
+                    statusDiv.innerHTML = '<p style="color: red;">❌ Failed to send message: ' + response.status + '</p>';
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '<p style="color: red;">❌ Error: ' + error.message + '</p>';
+            }
+        });
+    </script>
+</body>
+</html>

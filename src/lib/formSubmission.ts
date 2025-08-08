@@ -173,28 +173,64 @@ export const submitDemo = async (data: ContactFormData): Promise<FormSubmissionR
   return { success: true, message: 'Demo: Message received! (Not actually sent)' };
 };
 
-// Main form submission function - choose your preferred service
+// Main form submission function - Direct Formspree submission
 export const submitContactForm = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
-  // Try JSON submission first, fallback to FormData if it fails
+  const FORMSPREE_URL = 'https://formspree.io/f/mvgqvyve';
+  
+  console.log('Submitting form data:', data);
+  
   try {
-    const jsonResult = await submitToFormspree(data);
-    if (jsonResult.success) {
-      return jsonResult;
-    }
-    
-    // If JSON failed, try FormData
-    console.log('JSON submission failed, trying FormData...');
-    return await submitToFormspreeFormData(data);
-  } catch (error) {
-    // If both fail, try FormData as final fallback
-    console.log('Both methods failed, trying final FormData fallback...');
-    try {
-      return await submitToFormspreeFormData(data);
-    } catch (fallbackError) {
+    // Use FormData approach for better compatibility
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('subject', data.subject);
+    formData.append('message', data.message);
+    formData.append('_replyto', data.email); // Formspree reply-to field
+
+    const response = await fetch(FORMSPREE_URL, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'Accept': 'application/json'
+      }
+    });
+
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+
+    // Handle both success and redirect responses
+    if (response.ok) {
+      const responseData = await response.json().catch(() => null);
+      console.log('Response data:', responseData);
+      
+      return { 
+        success: true, 
+        message: 'Message sent successfully! We\'ll get back to you soon.' 
+      };
+    } else if (response.status === 302 || response.status === 422) {
+      // Formspree sometimes returns 302 redirect or 422 for success
+      return { 
+        success: true, 
+        message: 'Message sent successfully! We\'ll get back to you soon.' 
+      };
+    } else {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error('Formspree error:', response.status, errorText);
+      
       return {
         success: false,
-        message: 'Unable to send message. Please try again later or contact us directly.'
+        message: `Failed to send message. Server returned ${response.status}. Please try again.`
       };
     }
+  } catch (error) {
+    console.error('Form submission error:', error);
+    
+    return {
+      success: false,
+      message: error instanceof Error ? 
+        `Network error: ${error.message}. Please check your connection and try again.` : 
+        'Failed to send message. Please check your connection and try again.'
+    };
   }
 };

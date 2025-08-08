@@ -29,10 +29,20 @@ const Contact = () => {
     setSubmitStatus('idle');
     setErrorMessage('');
     
+    console.log('Form submission started with data:', formData);
+    
     try {
       // Basic form validation
-      if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
-        throw new Error('Please fill in all required fields');
+      if (!formData.name.trim()) {
+        throw new Error('Please enter your name');
+      }
+      
+      if (!formData.email.trim()) {
+        throw new Error('Please enter your email address');
+      }
+      
+      if (!formData.message.trim()) {
+        throw new Error('Please enter your message');
       }
 
       // Email validation
@@ -42,21 +52,42 @@ const Contact = () => {
       }
 
       // Track form submission attempt
-      trackContactForm('submit');
+      try {
+        trackContactForm('submit');
+      } catch (trackingError) {
+        console.warn('Analytics tracking failed:', trackingError);
+        // Don't fail the form submission for tracking errors
+      }
 
       // Submit form using the form submission service
+      console.log('Calling submitContactForm...');
       const response = await submitContactForm(formData);
+      console.log('Form submission response:', response);
       
       if (response.success) {
         setSubmitStatus('success');
         setFormData({ name: '', email: '', subject: '', message: '' });
+        console.log('Form submitted successfully');
+        
+        // Auto-hide success message after 5 seconds
+        setTimeout(() => {
+          setSubmitStatus('idle');
+        }, 5000);
       } else {
         throw new Error(response.message || 'Failed to send message');
       }
     } catch (error) {
       console.error('Form submission error:', error);
       setSubmitStatus('error');
-      setErrorMessage(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Failed to send message. Please try again.';
+      setErrorMessage(errorMessage);
+      console.error('Error details:', errorMessage);
+      
+      // Auto-hide error message after 10 seconds
+      setTimeout(() => {
+        setSubmitStatus('idle');
+        setErrorMessage('');
+      }, 10000);
     } finally {
       setIsSubmitting(false);
     }
