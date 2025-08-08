@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Direct Form Test - No Vercel</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input, textarea { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; box-sizing: border-box; }
+        button { background: #007cba; color: white; padding: 12px 24px; border: none; border-radius: 4px; cursor: pointer; }
+        .status { margin: 20px 0; padding: 15px; border-radius: 4px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h1>🧪 Direct Form Test (No Vercel)</h1>
+    <p>This bypasses your website completely and tests the form logic directly.</p>
+    
+    <div id="logs" style="background: #f8f9fa; padding: 15px; margin: 20px 0; border-radius: 4px; white-space: pre-wrap; font-family: monospace; max-height: 200px; overflow-y: auto;"></div>
+    
+    <form id="testForm">
+        <div class="form-group">
+            <label for="name">Name *</label>
+            <input type="text" id="name" name="name" value="Yug Khandelwal" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email *</label>
+            <input type="email" id="email" name="email" value="yugkhandelwal29@gmail.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" name="subject" value="demo">
+        </div>
+        
+        <div class="form-group">
+            <label for="message">Message *</label>
+            <textarea id="message" name="message" rows="4" required>site is not working - testing direct form</textarea>
+        </div>
+        
+        <button type="submit" id="submitBtn">Send Test Message</button>
+    </form>
+    
+    <div id="status"></div>
+
+    <script>
+        function log(message) {
+            const logs = document.getElementById('logs');
+            const timestamp = new Date().toLocaleTimeString();
+            logs.textContent += `[${timestamp}] ${message}\n`;
+            logs.scrollTop = logs.scrollHeight;
+            console.log(message);
+        }
+
+        // Copy of your exact form submission function
+        async function submitContactForm(data) {
+            const FORMSPREE_URL = 'https://formspree.io/f/mvgqvyve';
+            
+            log('📤 submitContactForm called with data: ' + JSON.stringify(data));
+            
+            try {
+                const formData = new FormData();
+                formData.append('name', data.name);
+                formData.append('email', data.email);
+                formData.append('subject', data.subject);
+                formData.append('message', data.message);
+                formData.append('_replyto', data.email);
+
+                log('📋 FormData created');
+                log('🌐 Making fetch request to: ' + FORMSPREE_URL);
+
+                const response = await fetch(FORMSPREE_URL, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                log('📊 Response received - status: ' + response.status);
+                log('📊 Response ok: ' + response.ok);
+
+                // Handle both success and redirect responses
+                if (response.ok) {
+                    try {
+                        const responseData = await response.json();
+                        log('📋 Response JSON data: ' + JSON.stringify(responseData));
+                    } catch (jsonError) {
+                        log('ℹ️ Response was not JSON (this is normal for some services)');
+                    }
+                    
+                    return { 
+                        success: true, 
+                        message: 'Message sent successfully! We\'ll get back to you soon.' 
+                    };
+                } else if (response.status === 302 || response.status === 422) {
+                    log('✅ Got redirect/422 status - treating as success');
+                    return { 
+                        success: true, 
+                        message: 'Message sent successfully! We\'ll get back to you soon.' 
+                    };
+                } else {
+                    const errorText = await response.text();
+                    log('❌ Formspree error - status: ' + response.status + ', text: ' + errorText);
+                    
+                    return {
+                        success: false,
+                        message: `Failed to send message. Server returned ${response.status}. Please try again.`
+                    };
+                }
+            } catch (error) {
+                log('💥 Form submission catch block error: ' + error.message);
+                
+                return {
+                    success: false,
+                    message: `Network error: ${error.message}. Please check your connection and try again.`
+                };
+            }
+        }
+
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const status = document.getElementById('status');
+            
+            log('🚀 Form submission started');
+            
+            // Get form data
+            const formData = new FormData(this);
+            const data = {
+                name: formData.get('name'),
+                email: formData.get('email'),
+                subject: formData.get('subject') || '',
+                message: formData.get('message')
+            };
+
+            log('📝 Form data: ' + JSON.stringify(data));
+
+            // Validation
+            if (!data.name.trim()) {
+                status.innerHTML = '<div class="status error">Please enter your name</div>';
+                log('❌ Validation failed: name required');
+                return;
+            }
+            
+            if (!data.email.trim()) {
+                status.innerHTML = '<div class="status error">Please enter your email address</div>';
+                log('❌ Validation failed: email required');
+                return;
+            }
+            
+            if (!data.message.trim()) {
+                status.innerHTML = '<div class="status error">Please enter your message</div>';
+                log('❌ Validation failed: message required');
+                return;
+            }
+
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(data.email)) {
+                status.innerHTML = '<div class="status error">Please enter a valid email address</div>';
+                log('❌ Validation failed: invalid email format');
+                return;
+            }
+
+            log('✅ Form validation passed');
+
+            // Submit form
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Sending...';
+            status.innerHTML = '';
+
+            try {
+                const response = await submitContactForm(data);
+                
+                if (response.success) {
+                    status.innerHTML = '<div class="status success">✅ ' + response.message + '</div>';
+                    log('🎉 SUCCESS! Form submitted successfully');
+                } else {
+                    status.innerHTML = '<div class="status error">❌ ' + response.message + '</div>';
+                    log('❌ FAILED: ' + response.message);
+                }
+            } catch (error) {
+                status.innerHTML = '<div class="status error">❌ Unexpected error: ' + error.message + '</div>';
+                log('💥 UNEXPECTED ERROR: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Send Test Message';
+            }
+        });
+
+        log('🔄 Direct test page loaded and ready');
+    </script>
+</body>
+</html>
