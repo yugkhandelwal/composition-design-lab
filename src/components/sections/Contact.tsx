@@ -27,10 +27,22 @@ const Contact = () => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
+    setErrorMessage('');
     
     try {
+      // Basic form validation
+      if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+        throw new Error('Please fill in all required fields');
+      }
+
+      // Email validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        throw new Error('Please enter a valid email address');
+      }
+
       // Track form submission attempt
-      trackContactForm(formData.subject || 'General Inquiry');
+      trackContactForm('submit');
 
       // Submit form using the form submission service
       const response = await submitContactForm(formData);
@@ -42,6 +54,7 @@ const Contact = () => {
         throw new Error(response.message || 'Failed to send message');
       }
     } catch (error) {
+      console.error('Form submission error:', error);
       setSubmitStatus('error');
       setErrorMessage(error instanceof Error ? error.message : 'Failed to send message. Please try again.');
     } finally {

@@ -13,6 +13,38 @@ export interface FormSubmissionResponse {
   message?: string;
 }
 
+// Fallback method using FormData
+export const submitToFormspreeFormData = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
+  const FORMSPREE_URL = 'https://formspree.io/f/mvgqvyve';
+  
+  try {
+    const formData = new FormData();
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('subject', data.subject);
+    formData.append('message', data.message);
+
+    const response = await fetch(FORMSPREE_URL, {
+      method: 'POST',
+      body: formData,
+    });
+
+    if (response.ok || response.status === 302) {
+      return { success: true, message: 'Message sent successfully!' };
+    } else {
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error('Formspree FormData error:', response.status, errorText);
+      throw new Error(`Failed to send message: ${response.status}`);
+    }
+  } catch (error) {
+    console.error('FormData submission error:', error);
+    return { 
+      success: false, 
+      message: error instanceof Error ? error.message : 'Failed to send message. Please try again.' 
+    };
+  }
+};
+
 // Option 1: Formspree (Recommended - Free tier available)
 export const submitToFormspree = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   const FORMSPREE_URL = 'https://formspree.io/f/mvgqvyve'; // Your Formspree form endpoint
@@ -22,19 +54,24 @@ export const submitToFormspree = async (data: ContactFormData): Promise<FormSubm
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Accept': 'application/json'
       },
       body: JSON.stringify(data),
     });
 
-    if (response.ok) {
+    // Check if the response is ok or if it's a redirect (Formspree sometimes redirects)
+    if (response.ok || response.status === 302) {
       return { success: true, message: 'Message sent successfully!' };
     } else {
-      throw new Error('Failed to send message');
+      const errorText = await response.text().catch(() => 'Unknown error');
+      console.error('Formspree error:', response.status, errorText);
+      throw new Error(`Failed to send message: ${response.status}`);
     }
   } catch (error) {
+    console.error('Form submission error:', error);
     return { 
       success: false, 
-      message: error instanceof Error ? error.message : 'Failed to send message' 
+      message: error instanceof Error ? error.message : 'Failed to send message. Please check your connection and try again.' 
     };
   }
 };
@@ -138,20 +175,26 @@ export const submitDemo = async (data: ContactFormData): Promise<FormSubmissionR
 
 // Main form submission function - choose your preferred service
 export const submitContactForm = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
-  // Choose your preferred submission method:
-  
-  // For Formspree (guaranteed to work and show requests):
-  return submitToFormspree(data);
-  
-  // For local development backend (to see requests in real-time):
-  // return submitToCustomAPI(data);
-  
-  // For development/demo:
-  // return submitDemo(data);
-  
-  // For Netlify Forms:
-  // return submitToNetlify(data);
-  
-  // For EmailJS:
-  // return submitToEmailJS(data);
+  // Try JSON submission first, fallback to FormData if it fails
+  try {
+    const jsonResult = await submitToFormspree(data);
+    if (jsonResult.success) {
+      return jsonResult;
+    }
+    
+    // If JSON failed, try FormData
+    console.log('JSON submission failed, trying FormData...');
+    return await submitToFormspreeFormData(data);
+  } catch (error) {
+    // If both fail, try FormData as final fallback
+    console.log('Both methods failed, trying final FormData fallback...');
+    try {
+      return await submitToFormspreeFormData(data);
+    } catch (fallbackError) {
+      return {
+        success: false,
+        message: 'Unable to send message. Please try again later or contact us directly.'
+      };
+    }
+  }
 };
