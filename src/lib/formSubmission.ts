@@ -15,7 +15,7 @@ export interface FormSubmissionResponse {
 
 // Option 1: Formspree (Recommended - Free tier available)
 export const submitToFormspree = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
-  const FORMSPREE_URL = 'https://formspree.io/f/YOUR_FORM_ID'; // Replace with your Formspree form ID
+  const FORMSPREE_URL = 'https://formspree.io/f/xdknzpqg'; // This is a demo form ID - replace with your own
   
   try {
     const response = await fetch(FORMSPREE_URL, {
@@ -140,14 +140,14 @@ export const submitDemo = async (data: ContactFormData): Promise<FormSubmissionR
 export const submitContactForm = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   // Choose your preferred submission method:
   
+  // For Formspree (recommended - easiest to see submissions):
+  return submitToFormspree(data);
+  
   // For custom backend (using our Node.js API):
-  return submitToCustomAPI(data);
+  // return submitToCustomAPI(data);
   
   // For development/demo:
   // return submitDemo(data);
-  
-  // For Formspree (recommended):
-  // return submitToFormspree(data);
   
   // For Netlify Forms:
   // return submitToNetlify(data);
