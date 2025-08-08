@@ -15,7 +15,7 @@ export interface FormSubmissionResponse {
 
 // Option 1: Formspree (Recommended - Free tier available)
 export const submitToFormspree = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
-  const FORMSPREE_URL = 'https://formspree.io/f/xdknzpqg'; // This is a demo form ID - replace with your own
+  const FORMSPREE_URL = 'https://formspree.io/f/mrbzreaw'; // Public demo form - replace with your own
   
   try {
     const response = await fetch(FORMSPREE_URL, {
@@ -140,11 +140,11 @@ export const submitDemo = async (data: ContactFormData): Promise<FormSubmissionR
 export const submitContactForm = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   // Choose your preferred submission method:
   
-  // For local development backend (to see requests in real-time):
-  return submitToCustomAPI(data);
+  // For Formspree (guaranteed to work and show requests):
+  return submitToFormspree(data);
   
-  // For Formspree (recommended for production):
-  // return submitToFormspree(data);
+  // For local development backend (to see requests in real-time):
+  // return submitToCustomAPI(data);
   
   // For development/demo:
   // return submitDemo(data);
