@@ -1,21 +1,18 @@
-// Vercel Serverless Function for Contact Form
-import { createConnection } from '../lib/database.js';
-
-// Simple in-memory storage for demo (use a real database in production)
-let messages = [];
-
-export default async function handler(req, res) {
-  // Enable CORS
+// Vercel Serverless Function for Contact Form - Public API
+export default function handler(req, res) {
+  // Enable CORS for all origins
   res.setHeader('Access-Control-Allow-Credentials', true);
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
+  // Handle preflight OPTIONS request
   if (req.method === 'OPTIONS') {
     res.status(200).end();
     return;
   }
 
+  // Only allow POST requests for contact form
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, message: 'Method not allowed' });
   }
