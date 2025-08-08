@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary Meta Tags -->
+    <title>Composition Design Lab - Architecture & Design Studio</title>
+    <meta name="title" content="Composition Design Lab - Architecture & Design Studio" />
+    <meta name="description" content="Composition Design Lab is an architectural firm specializing in innovative design, sustainable building, and urban planning. We create spaces that inspire, endure, and transform." />
+    <meta name="keywords" content="architecture, design, building, construction, interior design, urban planning, sustainable architecture, commercial design, residential design, architectural firm" />
+    <meta name="author" content="Composition Design Lab" />
+    <meta name="robots" content="index, follow" />
+    <meta name="language" content="English" />
+    
+    <!-- Favicon and Icons -->
+    <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <meta name="theme-color" content="#8B4513" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Composition Design Lab" />
+    <meta name="msapplication-TileColor" content="#8B4513" />
+    <meta name="msapplication-tap-highlight" content="no" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Composition Design Lab - Architecture & Design Studio" />
+    <meta property="og:description" content="Composition Design Lab is an architectural firm specializing in innovative design, sustainable building, and urban planning. We create spaces that inspire, endure, and transform." />
+    <meta property="og:image" content="https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&q=80&w=1200&h=630" />
+    <meta property="og:url" content="https://compositiondesignlab.com" />
+    <meta property="og:site_name" content="Composition Design Lab" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content="@compositiondesignlab" />
+    <meta name="twitter:creator" content="@compositiondesignlab" />
+    <meta name="twitter:title" content="Composition Design Lab - Architecture & Design Studio" />
+    <meta name="twitter:description" content="Composition Design Lab is an architectural firm specializing in innovative design, sustainable building, and urban planning." />
+    <meta name="twitter:image" content="https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&q=80&w=1200&h=630" />
+    
+    <!-- Preload critical resources -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" as="style" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&family=Open+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- DNS Prefetch for external resources -->
+    <link rel="dns-prefetch" href="//images.unsplash.com">
+    
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      // Note: Page view tracking is handled by React component
+      gtag('config', 'G-XXXXXXXXXX', {
+        send_page_view: false
+      });
+    </script>
+  </head>
+
+  <body>
+    <!-- Skip Navigation for Accessibility -->
+    <a href="#main-content" class="skip-link" style="position: absolute; top: -40px; left: 6px; background: #000; color: #fff; padding: 8px; text-decoration: none; z-index: 1000; transition: top 0.3s;" onfocus="this.style.top='6px'" onblur="this.style.top='-40px'">
+      Skip to main content
+    </a>
+    
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

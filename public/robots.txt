@@ -1,0 +1,26 @@
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /
+
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://compositiondesignlab.com/sitemap.xml
+
+# Block specific paths
+Disallow: /admin/
+Disallow: /.env
+Disallow: /node_modules/
+
+# Allow search engines to crawl CSS and JS files
+Allow: /*.css$
+Allow: /*.js$

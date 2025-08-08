@@ -1,0 +1,33 @@
+# Security Headers Configuration
+# Add these headers to your hosting provider (Netlify, Vercel, Apache, Nginx, etc.)
+
+# Content Security Policy
+Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com https://www.google-analytics.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https: data:; connect-src 'self' https://www.google-analytics.com; frame-ancestors 'none';
+
+# Prevent MIME type sniffing
+X-Content-Type-Options: nosniff
+
+# Enable XSS protection
+X-XSS-Protection: 1; mode=block
+
+# Prevent clickjacking
+X-Frame-Options: DENY
+
+# Force HTTPS
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+
+# Control referrer information
+Referrer-Policy: strict-origin-when-cross-origin
+
+# Permissions Policy (Feature Policy)
+Permissions-Policy: camera=(), microphone=(), geolocation=(), payment=()
+
+# Remove server signature
+Server: 
+
+# Cache control for security-sensitive resources
+Cache-Control: no-store, no-cache, must-revalidate, proxy-revalidate
+
+# Additional security headers
+X-Permitted-Cross-Domain-Policies: none
+Expect-CT: max-age=86400, enforce
