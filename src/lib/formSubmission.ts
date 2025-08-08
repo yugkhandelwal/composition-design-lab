@@ -96,7 +96,7 @@ export const submitToEmailJS = async (data: ContactFormData): Promise<FormSubmis
 export const submitToCustomAPI = async (data: ContactFormData): Promise<FormSubmissionResponse> => {
   const API_URL = process.env.NODE_ENV === 'development' 
     ? 'http://localhost:3001/api/contact'
-    : 'https://your-backend-domain.com/api/contact'; // Replace with your production backend URL
+    : '/api/contact'; // Use Vercel serverless function in production
   
   try {
     const response = await fetch(API_URL, {
